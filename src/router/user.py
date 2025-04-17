@@ -5,7 +5,7 @@ from ..request import *
 from ..response import BaseResponse, BaseError, UserListResponse
 from ..service import user_service
 from ..config import SessionDep, get_current_active_user
-from ..exceptions import ExistingUserEmail
+from ..exceptions import ExistingUserEmailException, MissingUserIdException
 from ..model import UserEntity
 from ..dto import convert_user_dto, UserDTO
 
@@ -41,7 +41,25 @@ async def put_user(request : CreateUserRequest, session : SessionDep) -> BaseRes
     logger.info(f"{put_user.__name__} endpoint accessed")
     try:
         user_service.create_user(request, session)
-    except ExistingUserEmail as e:
+    except ExistingUserEmailException as e:
+        logger.error(e.message)
+        return BaseError(
+            status=status.HTTP_400_BAD_REQUEST, 
+            message=e.message
+        )
+    return BaseResponse()
+
+@router.post(
+    path="/api/user", 
+    tags=['User API'],
+    description="Route for updating a user",
+    response_model=BaseResponse
+)
+async def update_user(user_id : int, request : UpdateUserRequest, session : SessionDep) -> BaseResponse | BaseError:
+    logger.info(f"{update_user.__name__} endpoint accessed")
+    try:
+        user_service.update_user(user_id, request, session)
+    except MissingUserIdException as e:
         logger.error(e.message)
         return BaseError(
             status=status.HTTP_400_BAD_REQUEST, 
@@ -54,5 +72,5 @@ async def put_user(request : CreateUserRequest, session : SessionDep) -> BaseRes
     tags=['User API'],
     response_model=UserDTO
 )
-async def read_user_me(current_user: Annotated[UserEntity, Depends(get_current_active_user)],) -> UserDTO:
+async def read_user_me(current_user: Annotated[UserEntity, Depends(get_current_active_user)]) -> UserDTO:
     return convert_user_dto(current_user)

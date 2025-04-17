@@ -1,4 +1,4 @@
-class ExistingUserEmail(Exception):
+class ExistingUserEmailException(Exception):
     """Exception raised for custom error scenarios.
     """
 

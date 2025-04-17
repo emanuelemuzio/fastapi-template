@@ -7,7 +7,7 @@ from ..request import *
 from ..response import BaseResponse, BaseError, UserListResponse
 from ..service import user_service
 from ..config import SessionDep, Token, authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token
-from ..exceptions import ExistingUserEmail
+from ..exceptions import ExistingUserEmailException
 
 router = APIRouter()
 logger=get_logger()
@@ -40,7 +40,7 @@ async def put_user(request : CreateUserRequest, session : SessionDep) -> BaseRes
     logger.info(f"{put_user.__name__} endpoint accessed")
     try:
         user_service.create_user(request, session)
-    except ExistingUserEmail as e:
+    except ExistingUserEmailException as e:
         logger.error(e.message)
         return BaseError(
             status=status.HTTP_400_BAD_REQUEST, 

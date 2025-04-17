@@ -1,3 +1,4 @@
 from .invalid_json_format import InvalidJsonFormatException
 from .json_not_found import JsonNotFoundException
-from .existing_user_email import ExistingUserEmail
+from .existing_user_email import ExistingUserEmailException
+from .missing_user_id import MissingUserIdException
